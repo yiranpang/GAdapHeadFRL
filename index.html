@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GAdapHeadFRL: Grouped Adaptive Head Mixing for Personalized Multi-Task Federated Reinforcement Learning</title>
+  <meta name="description" content="GAdapHeadFRL: a personalized multi-task federated reinforcement learning framework based on geometry-aware grouping and adaptive decision-layer task-head mixing.">
+  <meta name="keywords" content="federated reinforcement learning, multi-task reinforcement learning, personalized federated learning, task-head mixing, clustered federated learning, MiniGrid, MetaWorld">
+
+  <meta property="og:title" content="GAdapHeadFRL: Grouped Adaptive Head Mixing for Personalized Multi-Task Federated RL">
+  <meta property="og:description" content="Geometry-aware grouping and adaptive task-head mixing for heterogeneous multi-task federated reinforcement learning.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yiranpang.github.io/GAdapHeadFRL/">
+  <meta property="og:image" content="https://yiranpang.github.io/GAdapHeadFRL/static/images/system_overview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GAdapHeadFRL">
+  <meta name="twitter:description" content="Grouped Adaptive Head Mixing for Personalized Multi-Task Federated Reinforcement Learning.">
+  <meta name="twitter:image" content="https://yiranpang.github.io/GAdapHeadFRL/static/images/system_overview.png">
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.4/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+  <script defer src="./static/js/index.js"></script>
+</head>
+<body>
+
+<!-- ===================== Header ===================== -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Grouped Adaptive Head Mixing for Personalized Multi-Task Federated Reinforcement Learning</h1>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Yiran Pang,</span>
+            <span class="author-block">Zhen Ni,</span>
+            <span class="author-block">Dimitris Pados,</span>
+            <span class="author-block">Xiangnan Zhong<sup>&dagger;</sup></span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Florida Atlantic University</span>
+          </div>
+          <div class="publication-venue">
+            <sup>&dagger;</sup>Corresponding author
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="./static/pdf/GAdapHeadFRL.pdf" class="external-link button is-normal is-rounded is-dark" target="_blank" rel="noopener">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark is-disabled" title="arXiv link coming soon">
+                  <span class="icon"><i class="ai ai-arxiv"></i></span>
+                  <span>arXiv (coming soon)</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark is-disabled" title="Code release coming soon">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code (coming soon)</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#bibtex" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-quote-right"></i></span>
+                  <span>BibTeX</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Teaser ===================== -->
+<section class="hero hero-teaser">
+  <div class="container is-max-widescreen">
+    <div class="hero-body">
+      <div class="teaser has-text-centered">
+        <img src="./static/images/system_overview.png" alt="System overview of GAdapHeadFRL">
+        <h2 class="subtitle is-size-6">
+          <b>System overview of GAdapHeadFRL.</b>
+          In the initial probing phase, clients perform local updates and send task signatures to the server for automatic grouping.
+          In the main training loop, the server maintains group-specific head prototypes and broadcasts them with the shared backbone.
+          Each client computes its own adaptive mixing coefficient $\alpha_{i,k}$, trains under the mixed head, and uploads post-update parameters.
+          The server decides <em>whom to share with</em>; the client decides <em>how much to share</em>.
+        </h2>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Key numbers ===================== -->
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <div class="stat-tiles">
+      <div class="stat-tile">
+        <div class="stat-value">+24.5%</div>
+        <div class="stat-label">Relative gain over the strongest personalized MT-FRL baseline on MiniGrid MT7</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value">50.0% &rarr; 72.9%</div>
+        <div class="stat-label">Converged-task ratio on MiniGrid versus the personalized baseline</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value">&gt;50%</div>
+        <div class="stat-label">Lower average performance standard deviation than centralized MT-RL references</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-value">12 / 50</div>
+        <div class="stat-label">Up to 12 MiniGrid tasks and 50 MetaWorld tasks across heterogeneous benchmarks</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Abstract ===================== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Multi-task reinforcement learning (MT-RL) trains a single agent to solve multiple tasks by leveraging shared knowledge across task domains.
+            However, most MT-RL methods assume centralized access to task data, making them impractical for privacy-sensitive or large-scale distributed settings.
+            Multi-task federated reinforcement learning (MT-FRL) mitigates this issue by enabling agents to collaborate through shared models rather than raw trajectories, but often suffers from unstable performance under task heterogeneity, negative transfer, and imbalanced learning across tasks.
+            A fundamental question in MT-FRL is how each agent should decide <em>with whom</em> to share skills and <em>how strongly</em> to rely on shared knowledge.
+          </p>
+          <p>
+            To answer this question, we propose <b>GAdapHeadFRL</b>, a personalized MT-FRL framework based on geometry-aware grouping and adaptive decision-layer task-head mixing.
+            First, we decompose the local Bellman residual into representation and task-head estimation errors, and derive a closed-form optimal sharing strength governed by task mismatch and estimation uncertainty.
+            Second, we instantiate this insight by identifying compatible client groups from local update geometry, constructing group-specific task-head prototypes, and dynamically mixing them with local heads using lightweight practical proxies.
+          </p>
+          <p>
+            Experiments on heterogeneous benchmarks, including MiniGrid (up to 12 tasks) and MetaWorld (up to 50 tasks), show that GAdapHeadFRL consistently outperforms state-of-the-art personalized MT-FRL baselines.
+            It achieves up to 24.5% relative improvement on MiniGrid and increases the converged-task ratio from 50.0% to 72.9% over the personalized baseline.
+            In addition, the proposed method reduces the average performance standard deviation by over 50% compared with centralized MT-RL references.
+            These results demonstrate that geometry-aware grouping and adaptive task-head mixing provide an effective and scalable principle for heterogeneous MT-FRL.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Method ===================== -->
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Method</h2>
+        <div class="content">
+
+          <h3 class="title is-4">Whom to share with, and how much</h3>
+          <p>
+            A prevalent strategy for heterogeneous federated RL decouples the policy or value network into a <em>shared representation backbone</em> and <em>task-specific decision heads</em>.
+            Existing methods then pick one of two extremes for the heads: fully shared heads maximize collaboration but risk negative transfer, while fully local heads avoid conflicts but forfeit decision-level knowledge transfer.
+            GAdapHeadFRL moves beyond this binary choice along two axes.
+          </p>
+          <div class="highlight-box">
+            <p><b>Whom to share with (server).</b> Clients send task signatures extracted from their local updates. The server clusters them with spherical K-means, automatically selects the number of groups using a cosine-silhouette criterion, and maintains one task-head prototype per group.</p>
+            <p><b>How much to share (client).</b> Each client mixes its local head $\hat\phi_{i,k}$ with its group prototype $\hat\phi_{g,k}$ as $\tilde\phi_{i,k}(\alpha)=(1-\alpha)\hat\phi_{i,k}+\alpha\hat\phi_{g,k}$, where $\alpha_{i,k}\in[0,1]$ is computed locally from lightweight proxies of task mismatch (Mahalanobis distance) and estimation instability.</p>
+          </div>
+
+          <h3 class="title is-4">Theory: the optimal sharing strength is not a free hyperparameter</h3>
+          <p>
+            For a fixed backbone $\theta$, the local Bellman residual splits exactly into a representation error, which does not depend on $\alpha$, and a task-head estimation error that does.
+          </p>
+          <div class="theorem">
+            <span class="theorem-name">Lemma (Orthogonal Decomposition).</span>
+            For any $\alpha\in[0,1]$ and fixed $\theta$,
+            $$\varepsilon_{i,k}(\alpha)=\varepsilon_{\mathrm{rep},i,k}(\theta)+\big\|\tilde\phi_{i,k}(\alpha)-\phi_{i,k}^\star(\theta)\big\|_{\Sigma_i(\theta)}^2,$$
+            where $\varepsilon_{\mathrm{rep},i,k}(\theta)$ is independent of $\alpha$ and $\Sigma_i(\theta)$ is the feature covariance under the local distribution.
+          </div>
+          <p>
+            Modeling the local and shared heads as stochastic estimators, $\hat\phi_i=\phi_i^\star+m_i+\xi_i$ and $\hat\phi_g=\phi_g^\star+m_g+\xi_g$, with oracle mismatch $b_{i,g}=\phi_g^\star-\phi_i^\star$, noise energies $V_i,V_g$, and noise coupling $C_{ig}$, the expected head error becomes a strictly convex quadratic in $\alpha$.
+          </p>
+          <div class="theorem">
+            <span class="theorem-name">Theorem (Optimal Adaptive Mixing).</span>
+            Under imperfect noise coupling ($|C_{ig}|\le\rho\sqrt{V_iV_g}$ for some $\rho<1$), the unconstrained minimizer is
+            $$\alpha_{\mathrm{unc},i,k}=\frac{V_i-C_{ig}-\langle m_i,\;m_g+b_{i,g}-m_i\rangle_{\Sigma_i}}{\|m_g+b_{i,g}-m_i\|_{\Sigma_i}^2+V_i+V_g-2C_{ig}},$$
+            and the constrained optimum is $\alpha^\star_{i,k}=\Pi_{[0,1]}(\alpha_{\mathrm{unc},i,k})$.
+          </div>
+          <p>
+            Fully shared heads (FedAvg-style, $\alpha\to1$) and fully local heads (personalized, $\alpha\to0$) are the two boundary cases of this single adaptive principle:
+            sharing is favored when task mismatch is small and local noise is large, and rejected when the mismatch dominates.
+            Because the quality of the shared prior bounds what any mixing rule can achieve, grouping compatible clients first makes the prototype worth borrowing from.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Results ===================== -->
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full">
+        <h2 class="title is-3 has-text-centered">Main Results</h2>
+        <div class="content">
+          <p>
+            Success rate / normalized return (%) on MetaWorld and MiniGrid, reported as mean &plusmn; standard deviation.
+            MT10, MT5 and MT7 average over the original split and two additional randomly sampled splits.
+            The upper block is centralized multi-task RL; the lower block is federated RL.
+          </p>
+        </div>
+        <div class="table-container">
+          <table class="table is-striped is-hoverable results-table">
+            <thead>
+              <tr>
+                <th rowspan="2">Method</th>
+                <th rowspan="2">Venue</th>
+                <th colspan="2">MetaWorld</th>
+                <th colspan="3">MiniGrid</th>
+              </tr>
+              <tr>
+                <th>MT10 (3Set)</th>
+                <th>MT50</th>
+                <th>MT5 (3Set)</th>
+                <th>MT7 (3Set)</th>
+                <th>MT12</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="group-head"><td colspan="7">Centralized multi-task RL</td></tr>
+              <tr>
+                <td>MOORE</td><td>ICLR</td>
+                <td>79.2 &plusmn; 5.2</td><td>72.3 &plusmn; 3.3</td>
+                <td>73.7 &plusmn; 8.0</td><td>74.3 &plusmn; 7.3</td><td>77.8 &plusmn; 6.0</td>
+              </tr>
+              <tr>
+                <td>McLean et al. (2025)</td><td>RLJ</td>
+                <td>80.9 &plusmn; 5.4</td><td>72.5 &plusmn; 3.5</td>
+                <td>68.0 &plusmn; 9.4</td><td>66.4 &plusmn; 6.8</td><td>64.6 &plusmn; 6.0</td>
+              </tr>
+              <tr class="group-head"><td colspan="7">Federated RL</td></tr>
+              <tr>
+                <td>FedRL-SAC/PPO</td><td>DCS</td>
+                <td>78.1 &plusmn; 7.4</td><td>65.6 &plusmn; 3.1</td>
+                <td>57.6 &plusmn; 5.9</td><td>65.3 &plusmn; 4.5</td><td>68.7 &plusmn; 3.2</td>
+              </tr>
+              <tr>
+                <td>PFEDRL-REP</td><td>ICLR</td>
+                <td>78.1 &plusmn; 9.5</td><td>67.3 &plusmn; 1.0</td>
+                <td>66.2 &plusmn; 1.1</td><td>66.1 &plusmn; 8.2</td><td>80.0 &plusmn; 2.6</td>
+              </tr>
+              <tr class="ours">
+                <td>AdapHeadFRL (Ours)</td><td>&ndash;</td>
+                <td>80.7 &plusmn; 2.2</td><td>68.9 &plusmn; 0.9</td>
+                <td>79.1 &plusmn; 8.3</td><td>81.8 &plusmn; 2.7</td><td>85.9 &plusmn; 0.8</td>
+              </tr>
+              <tr class="ours">
+                <td><b>GAdapHeadFRL (Ours)</b></td><td>&ndash;</td>
+                <td class="best">84.9 &plusmn; 3.6</td><td class="best">72.0 &plusmn; 0.6</td>
+                <td class="best">80.8 &plusmn; 6.1</td><td class="best">82.3 &plusmn; 3.2</td><td class="best">86.0 &plusmn; 0.9</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MiniGrid curves -->
+    <div class="columns is-centered">
+      <div class="column is-full">
+        <h3 class="title is-4">MiniGrid learning curves</h3>
+        <div class="figure-block">
+          <img src="./static/images/mt5_triptych_neurips.png" alt="MiniGrid MT5 average return curves">
+          <img src="./static/images/mt7_triptych_neurips.png" alt="MiniGrid MT7 average return curves">
+          <p class="caption">
+            Average return on MiniGrid under two benchmark scales. Top: MT5 with the original split and two random splits (MT5-S1/S2). Bottom: MT7 with the original split and two random splits (MT7-S1/S2).
+            Mean and 95% confidence interval over 30 independent runs. The dashed line is the centralized baseline MOORE.
+            GAdapHeadFRL improves over PFEDRL-REP on MT7 from 66.1% to 82.3%, a 24.5% relative improvement.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stability + distribution -->
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <h3 class="title is-4">Performance and stability</h3>
+        <div class="figure-block">
+          <img src="./static/images/mt12_performance_stability.png" alt="Mean performance versus standard deviation on MiniGrid MT12">
+          <p class="caption">
+            Each point shows the mean success rate and standard deviation of a method. The bottom-right is the desirable regime of higher mean and lower variability.
+            On MT12, GAdapHeadFRL reaches the best mean return with a standard deviation of 0.9, 85.0% lower than the strongest centralized MT-RL reference.
+          </p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <h3 class="title is-4">Task-level outcome distribution</h3>
+        <div class="figure-block">
+          <img src="./static/images/minigrid_distribution.png" alt="Distribution of task-level outcomes on MiniGrid">
+          <p class="caption">
+            Left: task instances grouped by peak normalized return. GAdapHeadFRL produces fewer failed cases and more converged cases than the baselines.
+            Right: violin plots of peak returns across all task instances. Our methods shift the distribution upward and shrink the low-return tail.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ablations -->
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <h3 class="title is-4">Adaptive vs. fixed mixing weights</h3>
+        <div class="figure-block">
+          <img src="./static/images/alpha_bar_neurips_halfwidth.png" alt="Dynamic versus fixed mixing weights">
+          <p class="caption">
+            The adaptive coefficient outperforms every fixed $\alpha$. A small fixed ratio ($\alpha=0.2$) helps, but larger fixed values degrade performance, confirming that the optimal sharing strength must track task mismatch and estimation uncertainty during training.
+          </p>
+        </div>
+      </div>
+      <div class="column is-half">
+        <h3 class="title is-4">When does selective sharing help?</h3>
+        <div class="figure-block">
+          <img src="./static/images/heterogeneity_gain_paper_style.png" alt="Gain decomposition over PFEDRL-REP across heterogeneity levels">
+          <p class="caption">
+            Gain over PFEDRL-REP on three MetaWorld MT10 sets ordered by update heterogeneity: $\Delta_\alpha$ from adaptive mixing, $\Delta_g$ additionally from grouping.
+            Grouping matters most at medium heterogeneity (+6.5 points); adaptive mixing dominates at high heterogeneity (+6.0 points).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coefficient validation + robustness -->
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <h3 class="title is-4">Practical coefficient vs. empirical oracle</h3>
+        <div class="content">
+          <p>
+            On MiniGrid MT5 we freeze the backbone, local head, group prototype and Bellman targets, sweep $\alpha\in[0,1]$, and compare the practical coefficient with the critic-loss minimizer on an independent selection split.
+          </p>
+        </div>
+        <table class="table is-fullwidth is-striped compact-table">
+          <thead>
+            <tr><th>Round</th><th>Convex (%)</th><th>Mean $\alpha_{\mathrm{oracle}}$</th><th>Mean $\alpha_{\mathrm{practical}}$</th><th>MAE</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>250</td><td>90</td><td>0.236</td><td>0.219</td><td>0.074</td></tr>
+            <tr><td>500</td><td>94</td><td>0.287</td><td>0.271</td><td>0.068</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="column is-half">
+        <h3 class="title is-4">Deployment robustness</h3>
+        <div class="content">
+          <p>
+            <b>New-client assignment</b> (MetaWorld MT10, held-out drawer-open/close). Joining the most compatible refreshed centroid reaches 0.8 return in 175k steps, 41.7% fewer than local-only adaptation.
+          </p>
+        </div>
+        <table class="table is-fullwidth is-striped compact-table">
+          <thead>
+            <tr><th>Integration strategy</th><th>Early AUC &uarr;</th><th>Steps to 0.8 &darr;</th><th>Final return &uarr;</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Local only</td><td>0.5050</td><td>300k</td><td>0.9101</td></tr>
+            <tr><td>Global prototype</td><td>0.6041</td><td>275k</td><td>0.8761</td></tr>
+            <tr><td><b>Refreshed centroid</b></td><td><b>0.6272</b></td><td><b>175k</b></td><td><b>0.9968</b></td></tr>
+          </tbody>
+        </table>
+        <div class="content">
+          <p>
+            <b>Partial participation</b> (MiniGrid MT12). Retaining the previous prototype whenever a group is absent keeps 98.5% of full-participation performance at 75% participation and 91.9% at 50%.
+          </p>
+        </div>
+        <table class="table is-fullwidth is-striped compact-table">
+          <thead>
+            <tr><th>Participation</th><th>Final performance</th><th>Retained</th><th>RMST to 90% baseline</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>50%</td><td>79.0 &plusmn; 0.7</td><td>91.9%</td><td>160</td></tr>
+            <tr><td>75%</td><td>84.7 &plusmn; 0.5</td><td>98.5%</td><td>156</td></tr>
+            <tr><td>100%</td><td>86.0 &plusmn; 0.9</td><td>100%</td><td>66</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Conclusion ===================== -->
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Conclusion</h2>
+        <div class="content">
+          <p>
+            We studied MT-FRL under structured task heterogeneity and proposed GAdapHeadFRL, which combines geometry-aware grouping with adaptive head mixing.
+            By interpolating between local and shared task heads according to task mismatch and estimation uncertainty, it builds more compatible shared priors while avoiding negative transfer.
+            On MiniGrid and MetaWorld, it consistently improves over federated baselines and remains competitive with strong centralized MT-RL methods, highlighting adaptive intermediate sharing as an effective principle for heterogeneous federated RL.
+          </p>
+          <p>
+            Two directions follow from this work. The analysis is exact for linear task heads and extends to nonlinear heads only locally, so a global characterization under nonlinear heads remains open.
+            Group assignments are also fixed after warmup, whereas task relationships may drift as the shared backbone evolves, and periodic regrouping would extend the framework to non-stationary deployments.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BibTeX ===================== -->
+<section class="section" id="bibtex">
+  <div class="container is-max-desktop">
+    <div class="level">
+      <div class="level-left"><h2 class="title is-3">BibTeX</h2></div>
+      <div class="level-right">
+        <button id="copy-bibtex" class="button is-small is-rounded">
+          <span class="icon"><i class="fas fa-copy"></i></span><span>Copy</span>
+        </button>
+      </div>
+    </div>
+<pre class="bibtex" id="bibtex-text">@article{pang2026gadapheadfrl,
+  title   = {Grouped Adaptive Head Mixing for Personalized Multi-Task Federated Reinforcement Learning},
+  author  = {Pang, Yiran and Ni, Zhen and Pados, Dimitris and Zhong, Xiangnan},
+  year    = {2026},
+  url     = {https://yiranpang.github.io/GAdapHeadFRL/}
+}</pre>
+  </div>
+</section>
+
+<!-- ===================== Footer ===================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        This work was supported by the National Science Foundation under Grants 2047010, 2047064, 2205205 and 2612474,
+        the Department of Transportation under Grant 69A3552348304, AFOSR under grant FA9550-26-1-B225, and AFRL under grant FA8750-25-1-1000 (C-26-263).
+      </p>
+      <p>
+        Website template adapted from <a href="https://nerfies.github.io" target="_blank" rel="noopener">Nerfies</a>, licensed under
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.
+      </p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
