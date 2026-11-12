@@ -12,6 +12,7 @@ index.html            # the page
 static/css/index.css  # styles
 static/js/index.js    # BibTeX copy button
 static/images/        # figures exported from the paper
+static/images/envs/   # official MiniGrid environment GIFs (Farama Minigrid docs)
 static/pdf/           # paper PDF
 .nojekyll             # serve files as-is on GitHub Pages
 ```

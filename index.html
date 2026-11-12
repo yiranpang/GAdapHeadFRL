@@ -83,50 +83,14 @@
                 </a>
               </span>
             </div>
+            <nav class="page-nav" aria-label="Sections">
+              <a href="#background">Background</a>
+              <a href="#method">Method</a>
+              <a href="#theory">Theory</a>
+              <a href="#results">Results</a>
+            </nav>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== Teaser ===================== -->
-<section class="hero hero-teaser">
-  <div class="container is-max-widescreen">
-    <div class="hero-body">
-      <div class="teaser has-text-centered">
-        <img src="./static/images/system_overview.png" alt="System overview of GAdapHeadFRL">
-        <h2 class="subtitle is-size-6">
-          <b>System overview of GAdapHeadFRL.</b>
-          In the initial probing phase, clients perform local updates and send task signatures to the server for automatic grouping.
-          In the main training loop, the server maintains group-specific head prototypes and broadcasts them with the shared backbone.
-          Each client computes its own adaptive mixing coefficient $\alpha_{i,k}$, trains under the mixed head, and uploads post-update parameters.
-          The server decides <em>whom to share with</em>; the client decides <em>how much to share</em>.
-        </h2>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== Key numbers ===================== -->
-<section class="section pt-0">
-  <div class="container is-max-desktop">
-    <div class="stat-tiles">
-      <div class="stat-tile">
-        <div class="stat-value">+24.5%</div>
-        <div class="stat-label">Relative gain over the strongest personalized MT-FRL baseline on MiniGrid MT7</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-value">50.0% &rarr; 72.9%</div>
-        <div class="stat-label">Converged-task ratio on MiniGrid versus the personalized baseline</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-value">&gt;50%</div>
-        <div class="stat-label">Lower average performance standard deviation than centralized MT-RL references</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-value">12 / 50</div>
-        <div class="stat-label">Up to 12 MiniGrid tasks and 50 MetaWorld tasks across heterogeneous benchmarks</div>
       </div>
     </div>
   </div>
@@ -162,26 +126,332 @@
   </div>
 </section>
 
-<!-- ===================== Method ===================== -->
-<section class="section pt-0">
+<!-- ===================== Background ===================== -->
+<section class="section pt-0" id="background">
   <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Background: from multi-task RL to our idea</h2>
+
+    <!-- ---------- Step 1: multi-task RL ---------- -->
+    <div class="story-step">
+      <div class="step-head">
+        <span class="step-num">1</span>
+        <div>
+          <p class="step-kicker">Multi-task RL</p>
+          <h3 class="title is-4">One agent, many tasks</h3>
+        </div>
+      </div>
+      <div class="content">
+        <p>
+          Multi-task reinforcement learning trains one agent to solve many tasks at once, so that skills learned on one task can help the others.
+          We study two benchmark families.
+        </p>
+      </div>
+
+      <h4 class="bench-title">MiniGrid MT12: twelve puzzles, one policy</h4>
+      <p class="bench-sub">Same 7&times;7 partial view and actions for every task &middot; reward only on success &middot; very different goals</p>
+      <div class="env-grid">
+        <figure class="env-tile">
+          <img src="./static/images/envs/DoorKeyEnv.gif" alt="DoorKey: the agent picks up a key, opens a locked door and reaches the goal" loading="lazy">
+          <figcaption><b>DoorKey</b><span>key &rarr; door &rarr; goal</span><em class="tag tag-multi">Multi-step</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/DistShiftEnv.gif" alt="DistShift: the agent walks past a strip of lava to the goal" loading="lazy">
+          <figcaption><b>DistShift</b><span>walk past lava</span><em class="tag tag-hazard">Deadly hazard</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/LavaGapEnv.gif" alt="LavaGap: the agent passes through a single gap in a lava wall" loading="lazy">
+          <figcaption><b>LavaGap</b><span>single gap in lava</span><em class="tag tag-hazard">Deadly hazard</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/MemoryEnv.gif" alt="Memory: the agent sees a cue object, walks down a hallway and picks the matching object at a fork" loading="lazy">
+          <figcaption><b>Memory</b><span>recall cue at fork</span><em class="tag tag-memory">Memory</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/RedBlueDoorEnv.gif" alt="RedBlueDoors: the agent opens the red door and then the blue door" loading="lazy">
+          <figcaption><b>RedBlueDoors</b><span>red before blue</span><em class="tag tag-multi">Multi-step</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/CrossingEnv.gif" alt="Crossing: the agent finds the opening in each barrier to reach the goal" loading="lazy">
+          <figcaption><b>SimpleCrossing</b><span>find gaps in barriers</span><em class="tag tag-explore">Exploration</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/MultiRoomEnv.gif" alt="MultiRoom: the agent traverses a chain of rooms connected by doors" loading="lazy">
+          <figcaption><b>MultiRoom</b><span>chain of rooms</span><em class="tag tag-explore">Exploration</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/UnlockEnv.gif" alt="Unlock: the agent finds a key and opens a locked door" loading="lazy">
+          <figcaption><b>Unlock</b><span>find key, open door</span><em class="tag tag-multi">Multi-step</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/EmptyEnv.gif" alt="Empty: the agent walks across an open room to the goal square" loading="lazy">
+          <figcaption><b>Empty</b><span>walk to goal</span><em class="tag tag-easy">Easy</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/UnlockPickupEnv.gif" alt="UnlockPickup: the agent unlocks a door and picks up a box in the next room" loading="lazy">
+          <figcaption><b>UnlockPickup</b><span>key &rarr; door &rarr; box</span><em class="tag tag-multi">Multi-step</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/DynamicObstaclesEnv.gif" alt="DynamicObstacles: the agent avoids moving balls on its way to the goal" loading="lazy">
+          <figcaption><b>DynamicObstacles</b><span>moving obstacles</span><em class="tag tag-hazard">Deadly hazard</em></figcaption>
+        </figure>
+        <figure class="env-tile">
+          <img src="./static/images/envs/FourRoomsEnv.gif" alt="FourRooms: the agent searches four connected rooms for the goal" loading="lazy">
+          <figcaption><b>FourRooms</b><span>goal in any room</span><em class="tag tag-explore">Exploration</em></figcaption>
+        </figure>
+      </div>
+
+      <h4 class="bench-title">MetaWorld MT10 / MT50: one arm, many skills</h4>
+      <p class="bench-sub">One Sawyer arm, one 4-D continuous action space &middot; 10 to 50 manipulation skills, some directly opposed</p>
+      <div class="figure-block">
+        <img class="mt10-gif" src="https://metaworld.farama.org/_images/mt10.gif" alt="The ten MetaWorld MT10 manipulation tasks performed by a Sawyer robot arm" loading="lazy">
+        <p class="caption">
+          The MT10 tasks: reach, push, pick-place, door-open, drawer-open, drawer-close, button-press, peg-insert-side, window-open and window-close.
+          Some pairs act on the same object with opposite motions (drawer-open vs. drawer-close, window-open vs. window-close).
+        </p>
+      </div>
+    </div>
+
+    <!-- ---------- Step 2: federated setting ---------- -->
+    <div class="story-step">
+      <div class="step-head">
+        <span class="step-num">2</span>
+        <div>
+          <p class="step-kicker">Our setting &middot; Multi-task federated RL</p>
+          <h3 class="title is-4">One task per agent, and no data leaves the agent</h3>
+        </div>
+      </div>
+
+      <div class="fed-diagram">
+        <div class="fed-server">
+          <b>Server</b>
+          <span>sees model parameters only</span>
+        </div>
+        <div class="fed-links" aria-hidden="true">
+          <span><i class="fas fa-arrows-up-down"></i></span>
+          <span><i class="fas fa-arrows-up-down"></i></span>
+          <span><i class="fas fa-arrows-up-down"></i></span>
+          <span><i class="fas fa-arrows-up-down"></i></span>
+        </div>
+        <div class="fed-agents">
+          <div class="fed-agent">
+            <b>Agent 1</b>
+            <img src="./static/images/envs/DoorKeyEnv.gif" alt="DoorKey environment of Agent 1" loading="lazy">
+            <span>Task: <b>DoorKey</b></span>
+            <span class="fed-lock"><i class="fas fa-lock"></i> data stays here</span>
+          </div>
+          <div class="fed-agent">
+            <b>Agent 2</b>
+            <img src="./static/images/envs/LavaGapEnv.gif" alt="LavaGap environment of Agent 2" loading="lazy">
+            <span>Task: <b>LavaGap</b></span>
+            <span class="fed-lock"><i class="fas fa-lock"></i> data stays here</span>
+          </div>
+          <div class="fed-agent">
+            <b>Agent 3</b>
+            <img src="./static/images/envs/MemoryEnv.gif" alt="Memory environment of Agent 3" loading="lazy">
+            <span>Task: <b>Memory</b></span>
+            <span class="fed-lock"><i class="fas fa-lock"></i> data stays here</span>
+          </div>
+          <div class="fed-agent">
+            <b>Agent N</b>
+            <img src="./static/images/envs/DynamicObstaclesEnv.gif" alt="DynamicObstacles environment of Agent N" loading="lazy">
+            <span>Task: <b>DynObs</b></span>
+            <span class="fed-lock"><i class="fas fa-lock"></i> data stays here</span>
+          </div>
+        </div>
+        <p class="fed-note">Each agent explores its own environment; up and down the links go model parameters, never trajectories.</p>
+      </div>
+
+      <div class="card-row">
+        <div class="info-card is-muted">
+          <h4>Conventional multi-task learning</h4>
+          <p>Data from all tasks is pooled or shareable, so one learner sees every task.</p>
+        </div>
+        <div class="info-card is-strong">
+          <h4>Our setting: MT-FRL</h4>
+          <ul>
+            <li>Each agent owns one task</li>
+            <li>Trajectories never leave it</li>
+            <li>Only parameters are exchanged</li>
+          </ul>
+        </div>
+        <div class="info-card is-accent">
+          <p>No agent ever sees another task, so knowledge can only travel through the model: <b>how the server combines models decides whether sharing helps or hurts.</b></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- Step 3: problem 1 ---------- -->
+    <div class="story-step">
+      <div class="step-head">
+        <span class="step-num">3</span>
+        <div>
+          <p class="step-kicker">Problem 1 &middot; How to treat the task head</p>
+          <h3 class="title is-4">Existing methods share the head all or nothing</h3>
+        </div>
+      </div>
+      <div class="content">
+        <p>
+          The policy and value networks split into a <em>representation backbone</em> and a <em>task head</em>, the decision layer that turns features into actions and values.
+          Everyone agrees on sharing the backbone. The question is what to do with the head.
+        </p>
+      </div>
+
+      <div class="card-row two">
+        <div class="arch-card">
+          <h4>Conventional FL (FedAvg)</h4>
+          <div class="arch">
+            <div class="arch-row">
+              <div class="arch-agent"><img src="./static/images/envs/DoorKeyEnv.gif" alt="" loading="lazy"><span>Agent 1<br><b>DoorKey</b></span></div>
+              <div class="arch-wall">no data<br>shared</div>
+              <div class="arch-agent"><img src="./static/images/envs/LavaGapEnv.gif" alt="" loading="lazy"><span>Agent 2<br><b>LavaGap</b></span></div>
+            </div>
+            <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="arch-box is-backbone"><b>Representation backbone</b><span class="pill">Shared by all agents</span></div>
+            <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="arch-box is-head"><b>Task head</b><span class="pill">Also averaged: shared by all</span></div>
+            <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="arch-out">$\pi(a|s),\; Q(s,a)$ &mdash; <span class="warn">same decision layer for both tasks</span></div>
+          </div>
+          <p>Average the whole network, head included. Picking up a key and avoiding lava end up with one decision layer, even though they need very different actions.</p>
+          <span class="tag tag-shared">Head: fully shared &rarr; negative transfer</span>
+        </div>
+
+        <div class="arch-card">
+          <h4>Personalized FL (PFEDRL-REP, FedBABU)</h4>
+          <div class="arch">
+            <div class="arch-row">
+              <div class="arch-agent"><img src="./static/images/envs/DoorKeyEnv.gif" alt="" loading="lazy"><span>Agent 1<br><b>DoorKey</b></span></div>
+              <div class="arch-wall">no data<br>shared</div>
+              <div class="arch-agent"><img src="./static/images/envs/LavaGapEnv.gif" alt="" loading="lazy"><span>Agent 2<br><b>LavaGap</b></span></div>
+            </div>
+            <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="arch-box is-backbone"><b>Representation backbone</b><span class="pill">Shared by all agents</span></div>
+            <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="arch-row">
+              <div class="arch-box is-head"><b>Task head 1</b><span class="pill">Agent 1 only</span></div>
+              <div class="arch-wall">never<br>shared</div>
+              <div class="arch-box is-head"><b>Task head 2</b><span class="pill">Agent 2 only</span></div>
+            </div>
+            <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+            <div class="arch-out">$\pi_1, Q_1$ &nbsp;|&nbsp; $\pi_2, Q_2$ &mdash; <span class="warn">heads never learn from each other</span></div>
+          </div>
+          <p>Average only the backbone; every agent keeps its own head. Decisions never mix across tasks, but related tasks cannot help each other at the decision level either.</p>
+          <span class="tag tag-local">Head: fully local &rarr; no transfer</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- Step 4: problem 2 ---------- -->
+    <div class="story-step">
+      <div class="step-head">
+        <span class="step-num">4</span>
+        <div>
+          <p class="step-kicker">Problem 2 &middot; Whom to share with</p>
+          <h3 class="title is-4">Tasks pull the head in different directions</h3>
+        </div>
+      </div>
+      <div class="content">
+        <p>
+          Think of each agent's head update as an arrow: the direction its own task wants the head to move.
+          Related tasks point in similar directions; unrelated ones do not.
+        </p>
+      </div>
+
+      <div class="card-row two">
+        <div class="arch-card">
+          <h4>Average all heads into one</h4>
+          <svg class="dir-svg" role="img" aria-label="Eight task update arrows in three directions; their single average is a short arrow far from every task" viewBox="170 45 420 410" xmlns="http://www.w3.org/2000/svg"><defs><marker id="hA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F5F9E"/></marker><marker id="hB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C0661C"/></marker><marker id="hC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7B5EA7"/></marker></defs><circle cx="380" cy="250" r="190" fill="none" stroke="#DAD6CC" stroke-width="2" stroke-dasharray="6 8"/><circle cx="380" cy="250" r="6" fill="#1E2733"/><line x1="380" y1="250" x2="239.0" y2="131.7" stroke="#2F5F9E" stroke-width="4" stroke-linecap="round" marker-end="url(#hA)" opacity="0.9"/><line x1="380" y1="250" x2="217.5" y2="163.6" stroke="#2F5F9E" stroke-width="4" stroke-linecap="round" marker-end="url(#hA)" opacity="0.9"/><line x1="380" y1="250" x2="201.5" y2="205.5" stroke="#2F5F9E" stroke-width="4" stroke-linecap="round" marker-end="url(#hA)" opacity="0.9"/><line x1="380" y1="250" x2="550.6" y2="181.1" stroke="#C0661C" stroke-width="4" stroke-linecap="round" marker-end="url(#hB)" opacity="0.9"/><line x1="380" y1="250" x2="525.0" y2="136.7" stroke="#C0661C" stroke-width="4" stroke-linecap="round" marker-end="url(#hB)" opacity="0.9"/><line x1="380" y1="250" x2="493.3" y2="105.0" stroke="#C0661C" stroke-width="4" stroke-linecap="round" marker-end="url(#hB)" opacity="0.9"/><line x1="380" y1="250" x2="341.7" y2="430.0" stroke="#7B5EA7" stroke-width="4" stroke-linecap="round" marker-end="url(#hC)" opacity="0.9"/><line x1="380" y1="250" x2="418.3" y2="430.0" stroke="#7B5EA7" stroke-width="4" stroke-linecap="round" marker-end="url(#hC)" opacity="0.9"/><line x1="373.1" y1="222.1" x2="239.0" y2="131.7" stroke="#4A5363" stroke-width="2" stroke-dasharray="5 6"/><line x1="373.1" y1="222.1" x2="217.5" y2="163.6" stroke="#4A5363" stroke-width="2" stroke-dasharray="5 6"/><line x1="373.1" y1="222.1" x2="201.5" y2="205.5" stroke="#4A5363" stroke-width="2" stroke-dasharray="5 6"/><line x1="373.1" y1="222.1" x2="550.6" y2="181.1" stroke="#4A5363" stroke-width="2" stroke-dasharray="5 6"/><line x1="373.1" y1="222.1" x2="525.0" y2="136.7" stroke="#4A5363" stroke-width="2" stroke-dasharray="5 6"/><line x1="373.1" y1="222.1" x2="493.3" y2="105.0" stroke="#4A5363" stroke-width="2" stroke-dasharray="5 6"/><line x1="373.1" y1="222.1" x2="341.7" y2="430.0" stroke="#4A5363" stroke-width="2" stroke-dasharray="5 6"/><line x1="373.1" y1="222.1" x2="418.3" y2="430.0" stroke="#4A5363" stroke-width="2" stroke-dasharray="5 6"/><line x1="380" y1="250" x2="373.1" y2="222.1" stroke="#1E2733" stroke-width="8" stroke-linecap="round"/><circle cx="373.1" cy="222.1" r="13" fill="#1E2733" stroke="#FFFFFF" stroke-width="3"/></svg>
+          <p class="dir-legend"><span class="dot dot-avg"></span> global average</p>
+          <p>The single average is short and points nowhere in particular: it is far from every task.</p>
+        </div>
+        <div class="arch-card is-ours">
+          <h4>One prototype per group (ours)</h4>
+          <svg class="dir-svg" role="img" aria-label="The same task arrows with one thick prototype arrow per group, each pointing the same way as its own members" viewBox="170 45 420 410" xmlns="http://www.w3.org/2000/svg"><defs><marker id="mA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F5F9E"/></marker><marker id="pA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="34" markerHeight="34" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F5F9E"/></marker><marker id="mB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C0661C"/></marker><marker id="pB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="34" markerHeight="34" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C0661C"/></marker><marker id="mC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7B5EA7"/></marker><marker id="pC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="34" markerHeight="34" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7B5EA7"/></marker></defs><circle cx="380" cy="250" r="190" fill="none" stroke="#DAD6CC" stroke-width="2" stroke-dasharray="6 8"/><line x1="380" y1="250" x2="239.0" y2="131.7" stroke="#2F5F9E" stroke-width="3" stroke-linecap="round" marker-end="url(#mA)" opacity="0.6"/><line x1="380" y1="250" x2="217.5" y2="163.6" stroke="#2F5F9E" stroke-width="3" stroke-linecap="round" marker-end="url(#mA)" opacity="0.6"/><line x1="380" y1="250" x2="201.5" y2="205.5" stroke="#2F5F9E" stroke-width="3" stroke-linecap="round" marker-end="url(#mA)" opacity="0.6"/><line x1="380" y1="250" x2="550.6" y2="181.1" stroke="#C0661C" stroke-width="3" stroke-linecap="round" marker-end="url(#mB)" opacity="0.6"/><line x1="380" y1="250" x2="525.0" y2="136.7" stroke="#C0661C" stroke-width="3" stroke-linecap="round" marker-end="url(#mB)" opacity="0.6"/><line x1="380" y1="250" x2="493.3" y2="105.0" stroke="#C0661C" stroke-width="3" stroke-linecap="round" marker-end="url(#mB)" opacity="0.6"/><line x1="380" y1="250" x2="341.7" y2="430.0" stroke="#7B5EA7" stroke-width="3" stroke-linecap="round" marker-end="url(#mC)" opacity="0.6"/><line x1="380" y1="250" x2="418.3" y2="430.0" stroke="#7B5EA7" stroke-width="3" stroke-linecap="round" marker-end="url(#mC)" opacity="0.6"/><line x1="258.5" y1="187.2" x2="239.0" y2="131.7" stroke="#2F5F9E" stroke-width="2" stroke-dasharray="5 6"/><line x1="258.5" y1="187.2" x2="217.5" y2="163.6" stroke="#2F5F9E" stroke-width="2" stroke-dasharray="5 6"/><line x1="258.5" y1="187.2" x2="201.5" y2="205.5" stroke="#2F5F9E" stroke-width="2" stroke-dasharray="5 6"/><line x1="380" y1="250" x2="258.5" y2="187.2" stroke="#2F5F9E" stroke-width="11" stroke-linecap="round" marker-end="url(#pA)"/><line x1="488.8" y1="167.0" x2="550.6" y2="181.1" stroke="#C0661C" stroke-width="2" stroke-dasharray="5 6"/><line x1="488.8" y1="167.0" x2="525.0" y2="136.7" stroke="#C0661C" stroke-width="2" stroke-dasharray="5 6"/><line x1="488.8" y1="167.0" x2="493.3" y2="105.0" stroke="#C0661C" stroke-width="2" stroke-dasharray="5 6"/><line x1="380" y1="250" x2="488.8" y2="167.0" stroke="#C0661C" stroke-width="11" stroke-linecap="round" marker-end="url(#pB)"/><line x1="380.0" y1="386.8" x2="341.7" y2="430.0" stroke="#7B5EA7" stroke-width="2" stroke-dasharray="5 6"/><line x1="380.0" y1="386.8" x2="418.3" y2="430.0" stroke="#7B5EA7" stroke-width="2" stroke-dasharray="5 6"/><line x1="380" y1="250" x2="380.0" y2="386.8" stroke="#7B5EA7" stroke-width="11" stroke-linecap="round" marker-end="url(#pC)"/><circle cx="380" cy="250" r="7" fill="#1E2733"/></svg>
+          <p class="dir-legend"><span class="dot dot-a"></span> Group A <span class="dot dot-b"></span> Group B <span class="dot dot-c"></span> Group C</p>
+          <p>Each prototype points the same way as its own members, so mixing it in actually helps.</p>
+        </div>
+      </div>
+
+      <div class="evidence">
+        <img src="./static/images/head_update_pca.png" alt="PCA of task head-update directions on MiniGrid MT5: DoorKey and Memory near group 0, RedBlueDoors at group 1, LavaGap and DistShift near group 2" loading="lazy">
+        <div>
+          <h4>Evidence: real update directions do form groups</h4>
+          <p>
+            This is not just a cartoon. Each tile is one MiniGrid MT5 task, placed by the direction of its head updates recorded during warm-up (2-D PCA).
+            Black crosses are the group centers the server finds with spherical K-means; each task joins the closest one.
+          </p>
+          <p>
+            Three groups emerge: DoorKey + Memory, RedBlueDoors alone, and the two lava tasks LavaGap + DistShift.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- Step 5: the idea ---------- -->
+    <div class="story-step">
+      <div class="step-head">
+        <span class="step-num">5</span>
+        <div>
+          <p class="step-kicker">Two problems, one idea</p>
+          <h3 class="title is-4">Share the head <span class="hl">with the right partners</span>, and <span class="hl">only as much as it helps</span></h3>
+        </div>
+      </div>
+      <div class="content">
+        <p>Each agent picks its own point between the two extremes, mixing its local head with its own group's prototype:</p>
+      </div>
+      <div class="alpha-scale" role="img" aria-label="A scale from alpha equals zero, fully local, to alpha equals one, fully shared, with each agent sitting at a different point">
+        <div class="alpha-track">
+          <span class="alpha-dot" style="left:12%; background:#2F5F9E"></span>
+          <span class="alpha-dot" style="left:27%; background:#C0661C"></span>
+          <span class="alpha-dot" style="left:41%; background:#7B5EA7"></span>
+          <span class="alpha-dot" style="left:58%; background:#2F5F9E"></span>
+          <span class="alpha-dot" style="left:76%; background:#C0661C"></span>
+        </div>
+        <div class="alpha-ends">
+          <span><b>&alpha; = 0</b> &middot; fully local (personalized FL)</span>
+          <span><b>&alpha; = 1</b> &middot; fully shared (conventional FL)</span>
+        </div>
+      </div>
+      <div class="card-row two">
+        <div class="info-card is-strong">
+          <h4>Problem 1 &middot; How much to share?</h4>
+          <p>Each agent sets its own mixing weight &alpha; every round, guided by a closed-form optimum.</p>
+        </div>
+        <div class="info-card is-strong">
+          <h4>Problem 2 &middot; With whom to share?</h4>
+          <p>Group agents whose head updates point the same way; each group keeps one head prototype.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Method ===================== -->
+<section class="section pt-0" id="method">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Method: group first, then mix adaptively</h2>
+    <div class="figure-block">
+      <img src="./static/images/system_overview.png" alt="System overview of GAdapHeadFRL: an initial probing phase where clients send task signatures and the server selects the number of groups, then a main training loop where group prototypes are broadcast and each client mixes its head adaptively">
+      <p class="caption">
+        <b>System overview of GAdapHeadFRL.</b>
+        In the initial probing phase, clients perform local updates and send task signatures to the server for automatic grouping.
+        In the main training loop, the server maintains group-specific head prototypes and broadcasts them with the shared backbone.
+        Each client computes its own adaptive mixing coefficient $\alpha_{i,k}$, trains under the mixed head, and uploads post-update parameters.
+      </p>
+    </div>
     <div class="columns is-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3 has-text-centered">Method</h2>
         <div class="content">
-
-          <h3 class="title is-4">Whom to share with, and how much</h3>
-          <p>
-            A prevalent strategy for heterogeneous federated RL decouples the policy or value network into a <em>shared representation backbone</em> and <em>task-specific decision heads</em>.
-            Existing methods then pick one of two extremes for the heads: fully shared heads maximize collaboration but risk negative transfer, while fully local heads avoid conflicts but forfeit decision-level knowledge transfer.
-            GAdapHeadFRL moves beyond this binary choice along two axes.
-          </p>
           <div class="highlight-box">
-            <p><b>Whom to share with (server).</b> Clients send task signatures extracted from their local updates. The server clusters them with spherical K-means, automatically selects the number of groups using a cosine-silhouette criterion, and maintains one task-head prototype per group.</p>
-            <p><b>How much to share (client).</b> Each client mixes its local head $\hat\phi_{i,k}$ with its group prototype $\hat\phi_{g,k}$ as $\tilde\phi_{i,k}(\alpha)=(1-\alpha)\hat\phi_{i,k}+\alpha\hat\phi_{g,k}$, where $\alpha_{i,k}\in[0,1]$ is computed locally from lightweight proxies of task mismatch (Mahalanobis distance) and estimation instability.</p>
+            <p><b>A &middot; With whom (server).</b> During a short warm-up, clients send task signatures: normalized directions of their local head updates. The server clusters them with spherical K-means, automatically selects the number of groups using a cosine-silhouette criterion, and maintains one task-head prototype per group.</p>
+            <p><b>B &middot; How much (client).</b> Each client mixes its local head $\hat\phi_{i,k}$ with its group prototype $\hat\phi_{g,k}$ as $\tilde\phi_{i,k}(\alpha)=(1-\alpha)\hat\phi_{i,k}+\alpha\hat\phi_{g,k}$, where $\alpha_{i,k}\in[0,1]$ is computed locally every round from lightweight proxies of task mismatch (Mahalanobis distance) and estimation instability. Sharing rises when the local head is noisy and falls when the prototype does not fit.</p>
           </div>
+          <p>
+            The server decides <em>which</em> prototype a client receives; the client alone decides <em>how strongly</em> to use it.
+            The extra communication cost is one scalar per client per round.
+          </p>
 
-          <h3 class="title is-4">Theory: the optimal sharing strength is not a free hyperparameter</h3>
+          <h3 class="title is-4" id="theory">Theory: head mixing is a bias&ndash;variance trade-off</h3>
           <p>
             For a fixed backbone $\theta$, the local Bellman residual splits exactly into a representation error, which does not depend on $\alpha$, and a task-head estimation error that does.
           </p>
@@ -200,8 +470,22 @@
             $$\alpha_{\mathrm{unc},i,k}=\frac{V_i-C_{ig}-\langle m_i,\;m_g+b_{i,g}-m_i\rangle_{\Sigma_i}}{\|m_g+b_{i,g}-m_i\|_{\Sigma_i}^2+V_i+V_g-2C_{ig}},$$
             and the constrained optimum is $\alpha^\star_{i,k}=\Pi_{[0,1]}(\alpha_{\mathrm{unc},i,k})$.
           </div>
+          <div class="card-row">
+            <div class="info-card is-muted">
+              <h4>Noisy local head &rarr; $\alpha^\star\to1$</h4>
+              <p>Recovers the fully shared (FedAvg-style) head.</p>
+            </div>
+            <div class="info-card is-muted">
+              <h4>Large mismatch &rarr; $\alpha^\star\to0$</h4>
+              <p>Recovers the personalized local head.</p>
+            </div>
+            <div class="info-card is-accent">
+              <h4>$\alpha$ is not a hyperparameter</h4>
+              <p>It is client-specific; any fixed global $\alpha$ is generally suboptimal.</p>
+            </div>
+          </div>
           <p>
-            Fully shared heads (FedAvg-style, $\alpha\to1$) and fully local heads (personalized, $\alpha\to0$) are the two boundary cases of this single adaptive principle:
+            Fully shared and fully local heads are the two boundary cases of this single adaptive principle:
             sharing is favored when task mismatch is small and local noise is large, and rejected when the mismatch dominates.
             Because the quality of the shared prior bounds what any mixing rule can achieve, grouping compatible clients first makes the prototype worth borrowing from.
           </p>
@@ -212,11 +496,29 @@
 </section>
 
 <!-- ===================== Results ===================== -->
-<section class="section pt-0">
+<section class="section pt-0" id="results">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full">
-        <h2 class="title is-3 has-text-centered">Main Results</h2>
+        <h2 class="title is-3 has-text-centered">Results: best federated method in every setting</h2>
+        <div class="stat-tiles">
+          <div class="stat-tile">
+            <div class="stat-value">+24.5%</div>
+            <div class="stat-label">Relative gain over the strongest personalized MT-FRL baseline on MiniGrid MT7</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value">50.0% &rarr; 72.9%</div>
+            <div class="stat-label">Converged-task ratio on MiniGrid versus the personalized baseline</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value">&gt;50%</div>
+            <div class="stat-label">Lower average performance standard deviation than centralized MT-RL references</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value">12 / 50</div>
+            <div class="stat-label">Up to 12 MiniGrid tasks and 50 MetaWorld tasks across heterogeneous benchmarks</div>
+          </div>
+        </div>
         <div class="content">
           <p>
             Success rate / normalized return (%) on MetaWorld and MiniGrid, reported as mean &plusmn; standard deviation.
@@ -448,6 +750,11 @@
       <p>
         This work was supported by the National Science Foundation under Grants 2047010, 2047064, 2205205 and 2612474,
         the Department of Transportation under Grant 69A3552348304, AFOSR under grant FA9550-26-1-B225, and AFRL under grant FA8750-25-1-1000 (C-26-263).
+      </p>
+      <p>
+        Environment animations are from the official
+        <a href="https://minigrid.farama.org/environments/minigrid/" target="_blank" rel="noopener">Minigrid</a> and
+        <a href="https://metaworld.farama.org/" target="_blank" rel="noopener">Meta-World</a> documentation (Farama Foundation).
       </p>
       <p>
         Website template adapted from <a href="https://nerfies.github.io" target="_blank" rel="noopener">Nerfies</a>, licensed under
